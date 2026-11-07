@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>درس المحيط والمساحة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Readex+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* عرض بمقاس شرائح البوربوينت ١٢٨٠×٧٢٠ (١٦:٩) يتمدد ليملأ الشاشة — الأزرق للمساحة والأحمر للمحيط دائماً */
+  --paper:#f6f7fb;
+  --card:#ffffff;
+  --ink:#151d36;
+  --muted:#56607c;
+  --line:#d9dfeb;
+  --area:#2a58c9;
+  --area-soft:rgba(42,88,201,.17);
+  --peri:#dc4327;
+  --ok:#1a8452;
+  --bad:#c2321f;
+  --frame:#10141f;
+  --f-display:"Readex Pro","IBM Plex Sans Arabic",Tahoma,sans-serif;
+  --f-body:"IBM Plex Sans Arabic",Tahoma,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden;background:var(--frame)}
+body{font-family:var(--f-body);color:var(--ink)}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--area);outline-offset:3px}
+h1,h2,h3{font-family:var(--f-display);margin:0;line-height:1.3;text-wrap:balance}
+p{margin:0}
+.num{font-variant-numeric:tabular-nums}
+.ca{color:var(--area)} .cp{color:var(--peri)}
+
+#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;transform-origin:center center;
+  background:var(--paper);overflow:hidden;font-size:24px;line-height:1.65}
+.slide{position:absolute;inset:0 0 64px 0;padding:44px 64px 20px;display:none;flex-direction:column}
+.slide.on{display:flex}
+.paper-bg{background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:40px 40px}
+
+/* أيقونات مرسومة يدوياً */
+.ic svg{display:block;width:100%;height:100%}
+.ic .s{fill:none;stroke:var(--ink);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.ic .sa{fill:none;stroke:var(--peri);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.ic .sb{fill:none;stroke:var(--area);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.ic .fa{fill:var(--peri)} .ic .fb{fill:var(--area-soft)} .ic .fi{fill:var(--ink)} .ic .fw{fill:var(--card)}
+
+.sh{display:flex;align-items:center;gap:18px;margin-bottom:22px}
+.sh .ic{width:64px;height:64px;flex:none;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:9px}
+.eyebrow{display:block;font-size:17px;font-weight:700;color:var(--muted)}
+.sh h2{font-size:40px}
+
+/* شريط التنقل */
+.navbar{position:absolute;left:0;right:0;bottom:0;height:64px;display:flex;align-items:center;gap:14px;padding:0 28px;border-top:2px solid var(--line);background:var(--card)}
+.navbar .ttl{font-weight:700;font-size:17px;color:var(--muted)}
+.prog{flex:1;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--ink);transition:width .25s}
+.nb{width:44px;height:44px;border-radius:12px;border:2px solid var(--line);background:var(--paper);display:grid;place-items:center;padding:8px}
+.nb:hover{border-color:var(--ink)}
+.nb:disabled{opacity:.35;cursor:default}
+.count{font-weight:700;font-size:18px;min-width:70px;text-align:center}
+
+/* ١ الغلاف */
+.cover{justify-content:center}
+.cover .tag{font-size:20px;font-weight:700;color:var(--muted);background:var(--card);border:2px solid var(--line);border-radius:999px;padding:4px 18px;align-self:flex-start}
+.cover h1{font-size:104px;line-height:1.15;margin-top:18px}
+.cover .sub{font-size:28px;color:var(--muted);margin-top:14px;max-width:24em}
+.cover .art{position:absolute;left:70px;top:120px;width:400px;height:400px}
+
+/* بطاقات عامة */
+.cards{display:grid;gap:20px}
+.card{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:22px 24px}
+.goal{display:grid;grid-template-columns:72px 1fr;gap:18px;align-items:center}
+.goal .ic{width:72px;height:72px}
+.goal b{font-family:var(--f-display);font-size:20px;color:var(--muted);display:block}
+
+/* ٣ التهيئة */
+.garden-wrap{display:grid;grid-template-columns:1fr 560px;gap:40px;align-items:center;flex:1}
+.qbox{font-size:30px;font-weight:600}
+.qbox .q{margin-top:20px;display:grid;gap:16px}
+.qbox .q div{display:flex;gap:14px;align-items:center;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:14px 18px}
+.qbox .q .ic{width:54px;height:54px;flex:none}
+.reveal{margin-top:20px}
+.btn{border:0;border-radius:12px;padding:10px 22px;font-weight:700;font-size:21px;background:var(--ink);color:var(--card)}
+.btn.sec{background:var(--card);color:var(--ink);border:2px solid var(--line)}
+.ans{opacity:0;transition:opacity .3s}
+.ans.show{opacity:1}
+
+/* ٤ و٥ المفاهيم */
+.concept{display:grid;grid-template-columns:1fr 520px;gap:44px;align-items:center;flex:1}
+.def{font-size:34px;font-weight:600;line-height:1.55}
+.unitline{margin-top:22px;display:flex;gap:14px;align-items:center;font-size:24px;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:12px 18px}
+.unitline .ic{width:48px;height:48px;flex:none}
+.calc{margin-top:16px;font-size:26px;font-weight:600}
+.fig{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:16px}
+.fig svg{display:block;width:100%;height:auto}
+.fig .lbl{font:700 20px var(--f-body);fill:var(--ink)}
+
+/* ٦ ورشة البناء */
+.builder{display:grid;grid-template-columns:568px 1fr;gap:28px;flex:1;min-height:0}
+.board{display:flex;flex-direction:column;gap:10px}
+.toolbar{display:flex;gap:8px}
+.tool{border:2px solid var(--line);background:var(--card);border-radius:10px;padding:4px 14px;font-weight:700;font-size:18px;display:flex;align-items:center;gap:8px}
+.tool .ic{width:24px;height:24px}
+.tool[aria-pressed="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.tool[aria-pressed="true"] .s{stroke:var(--card)}
+.tool.end{margin-inline-start:auto}
+#grid{display:grid;grid-template-columns:repeat(12,1fr);grid-template-rows:repeat(9,1fr);width:568px;height:426px;
+  touch-action:none;user-select:none;-webkit-user-select:none;border:2px solid var(--line);border-radius:8px;overflow:hidden;background-color:var(--card);
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:calc(100% / 12) calc(100% / 9)}
+.cell{border:0;padding:0;margin:0;background:transparent}
+.cell.on{background:var(--area-soft)}
+.side{display:flex;flex-direction:column;gap:12px;min-height:0}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:8px 16px}
+.stat.a{border-top:6px solid var(--area)} .stat.p{border-top:6px solid var(--peri)}
+.stat .k{font-size:17px;font-weight:700;color:var(--muted)}
+.stat .v{font-family:var(--f-display);font-size:50px;line-height:1.15}
+.stat .u{font-size:15px;color:var(--muted)}
+#shapeMsg{font-size:18px;line-height:1.55;min-height:56px}
+.chal{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px 16px;flex:1;display:flex;flex-direction:column}
+.chal-top{display:flex;justify-content:space-between;align-items:center;font-size:16px;font-weight:700;color:var(--muted)}
+.chdots{display:flex;gap:6px}
+.chdots button{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);background:var(--paper);font-size:14px;font-weight:700;padding:0}
+.chdots button.cur{border-color:var(--ink)}
+.chdots button.done{background:var(--ok);border-color:var(--ok);color:#fff}
+#chText{font-size:23px;font-weight:700;line-height:1.5;margin-top:6px}
+.chact{display:flex;gap:8px;margin-top:10px}
+.chact .btn{font-size:17px;padding:7px 16px}
+#chFb{margin-top:8px;font-size:17px;font-weight:700;line-height:1.5}
+#chFb.ok{color:var(--ok)} #chFb.bad{color:var(--bad)} #chFb.hint{color:var(--muted)}
+
+/* ٧ اكتشفي */
+.disc{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;flex:1}
+.disc .card{display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;padding:18px}
+.disc svg{width:100%;height:200px}
+.disc .dim{font-family:var(--f-display);font-size:28px}
+.disc .vals{font-size:22px;font-weight:700}
+.disc .pv{opacity:0;transition:opacity .3s}
+.disc.show .pv{opacity:1}
+.disc-foot{display:flex;align-items:center;gap:20px;margin-top:18px}
+.disc-foot p{font-size:24px;font-weight:600;opacity:0;transition:opacity .3s}
+.disc.show + .disc-foot p{opacity:1}
+
+/* ٨ المختبر */
+.lab{display:grid;grid-template-columns:500px 1fr;gap:28px;flex:1;min-height:0}
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tabs .tool{font-size:17px;padding:4px 10px}
+.tabs .tool .ic{width:26px;height:26px}
+.slider{margin-top:14px}
+.slider label{display:flex;justify-content:space-between;font-weight:700;font-size:20px}
+.slider input{width:100%;accent-color:var(--area);height:28px}
+.formula{margin-top:14px;display:grid;gap:10px}
+.formula div{background:var(--card);border:2px solid var(--line);border-radius:12px;padding:10px 14px;font-size:19px;line-height:1.55;font-weight:600}
+.formula .fa{border-inline-start:6px solid var(--area)} .formula .fp{border-inline-start:6px solid var(--peri)}
+.formula b{font-family:var(--f-display);font-size:24px}
+#labTip{margin-top:10px;font-size:17px;color:var(--muted);line-height:1.55}
+.labfig{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:10px;display:flex;align-items:center}
+#labSvg{width:100%;height:auto;display:block}
+#labSvg .lbl{fill:var(--ink);font:700 15px var(--f-body)}
+
+/* ٩ الملخص */
+.sum{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;flex:1}
+.sum .card{display:flex;flex-direction:column;gap:10px;padding:18px}
+.sum .ic{width:100%;height:96px}
+.sum h3{font-size:24px;text-align:center}
+.sum .row{border-radius:10px;padding:8px 12px;font-size:18px;font-weight:600;line-height:1.5;background:var(--paper)}
+.sum .row.a{border-inline-start:5px solid var(--area)} .sum .row.p{border-inline-start:5px solid var(--peri)}
+.sum .row small{display:block;font-size:14px;color:var(--muted);font-weight:700}
+
+/* ١٠ الأخطاء */
+.mist{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;flex:1}
+.mist .card{display:flex;flex-direction:column;gap:14px}
+.mist .ic{width:70px;height:70px}
+.mist h3{font-size:26px}
+.mist p{font-size:21px;line-height:1.6}
+.mist .fix{margin-top:auto;font-size:19px;font-weight:700;color:var(--ok)}
+
+/* ١١ الاختبار */
+.quiz{flex:1;display:flex;flex-direction:column;min-height:0}
+.qtop{display:flex;align-items:center;gap:16px;font-weight:700;font-size:18px;color:var(--muted)}
+.qdots{display:flex;gap:6px;flex:1}
+.qdots i{flex:1;height:8px;border-radius:4px;background:var(--line)}
+.qdots i.ok{background:var(--ok)} .qdots i.bad{background:var(--bad)} .qdots i.now{background:var(--ink)}
+.qbody{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:18px;flex:1;min-height:0}
+.qskill{display:inline-block;font-size:16px;font-weight:700;color:var(--muted);border:2px solid var(--line);border-radius:999px;padding:0 14px}
+.qtext{font-size:30px;font-weight:700;line-height:1.5;margin-top:10px}
+.qfig{margin-top:14px;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:8px;max-width:420px}
+.qfig svg{width:100%;height:auto;display:block}
+.qfig .lbl{fill:var(--ink);font:700 15px var(--f-body)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-content:start}
+.opt{display:flex;gap:14px;align-items:center;text-align:start;background:var(--card);border:3px solid var(--line);border-radius:16px;padding:14px 16px;font-weight:700;font-size:24px}
+.opt .L{flex:none;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--paper);border:2px solid var(--line);font-size:20px}
+.opt:hover:not(:disabled){border-color:var(--ink)}
+.opt:disabled{cursor:default}
+.opt.right{border-color:var(--ok);background:#e3f4ea}
+.opt.wrong{border-color:var(--bad);background:#fbe7e3}
+.why{grid-column:1/-1;display:none;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:10px 16px;font-size:19px;line-height:1.55}
+.why.show{display:block}
+.why strong{margin-inline-end:8px}
+.qnext{display:flex;justify-content:flex-end;margin-top:10px}
+.result{flex:1;display:grid;grid-template-columns:300px 1fr;gap:36px;align-items:center}
+.result .ic{width:260px;height:260px}
+.result .big{font-family:var(--f-display);font-size:96px;line-height:1.1}
+.result p{font-size:28px;font-weight:600}
+
+/* ١٢ الختام */
+.exit{display:grid;grid-template-columns:1fr 420px;gap:44px;align-items:center;flex:1}
+.exit .task{font-size:34px;font-weight:700;line-height:1.55}
+.exit ul{margin:18px 0 0;padding-inline-start:28px;font-size:24px}
+.exit .ic{width:380px;height:380px}
+
+/* ١٣ سير الدرس */
+.plan{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;flex:1}
+.plan .card{display:flex;flex-direction:column;gap:8px;padding:18px}
+.plan .ic{width:56px;height:56px}
+.plan .t{font-size:17px;font-weight:700;color:var(--muted)}
+.plan b{font-family:var(--f-display);font-size:24px}
+.plan p{font-size:18px;line-height:1.55}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- ١ الغلاف -->
+  <section class="slide cover paper-bg on" data-title="الغلاف">
+    <span class="tag">الرياضيات · القياس والهندسة</span>
+    <h1><span class="cp">المحيط</span><br>و<span class="ca">المساحة</span></h1>
+    <p class="sub">نبني الأشكال بأيدينا، ونحسب محيطها ومساحتها، ونستعد لأسئلة التقييم الخارجي.</p>
+    <div class="art ic" data-icon="coverArt"></div>
+  </section>
+
+  <!-- ٢ الأهداف -->
+  <section class="slide" data-title="أهداف الدرس">
+    <div class="sh"><span class="ic" data-icon="target"></span><div><span class="eyebrow">قبل أن نبدأ</span><h2>أهداف الدرس</h2></div></div>
+    <div class="cards" style="grid-template-columns:1fr 1fr;flex:1;align-content:center">
+      <div class="card goal"><span class="ic" data-icon="compare"></span><div><b>الهدف ١</b>أميّز بين المحيط والمساحة ووحدة قياس كلٍّ منهما.</div></div>
+      <div class="card goal"><span class="ic" data-icon="tiles"></span><div><b>الهدف ٢</b>أحسب المساحة بعدّ الوحدات المربعة وبالقانون.</div></div>
+      <div class="card goal"><span class="ic" data-icon="ruler"></span><div><b>الهدف ٣</b>أحسب محيط المستطيل والمربع والأشكال المركّبة.</div></div>
+      <div class="card goal"><span class="ic" data-icon="house"></span><div><b>الهدف ٤</b>أحلّ مسائل حياتية متعددة الخطوات.</div></div>
+    </div>
+  </section>
+
+  <!-- ٣ التهيئة -->
+  <section class="slide" data-title="التهيئة">
+    <div class="sh"><span class="ic" data-icon="bulb"></span><div><span class="eyebrow">تهيئة</span><h2>حديقة المدرسة</h2></div></div>
+    <div class="garden-wrap">
+      <div class="qbox">
+        <p>تريد المدرسة تجديد حديقتها المستطيلة:</p>
+        <div class="q">
+          <div><span class="ic" data-icon="fence"></span><span>كم متراً من <b>السياج</b> نحتاج حولها؟ <span class="ans cp" id="a1">← المحيط</span></span></div>
+          <div><span class="ic" data-icon="grass"></span><span>كم متراً مربعاً من <b>العشب</b> يغطي أرضها؟ <span class="ans ca" id="a2">← المساحة</span></span></div>
+        </div>
+        <div class="reveal"><button class="btn" id="revealGarden" type="button">اكشفي الإجابة</button></div>
+      </div>
+      <div class="ic" data-icon="garden" style="width:560px;height:400px"></div>
+    </div>
+  </section>
+
+  <!-- ٤ المحيط -->
+  <section class="slide" data-title="المحيط">
+    <div class="sh"><span class="ic" data-icon="fence"></span><div><span class="eyebrow">المفهوم الأول</span><h2 class="cp">المحيط</h2></div></div>
+    <div class="concept">
+      <div>
+        <p class="def">المحيط هو طول الحدّ الخارجي للشكل، ونحسبه بجمع أطوال جميع أضلاعه.</p>
+        <div class="unitline"><span class="ic" data-icon="ruler"></span><span>يُقاس بوحدات الطول: <b>سم، م، كم</b></span></div>
+        <p class="calc">المحيط = ٦ + ٤ + ٦ + ٤ = <span class="cp">٢٠ سم</span></p>
+      </div>
+      <div class="fig"><svg viewBox="0 0 480 320" aria-label="مستطيل أطواله ٦ و٤">
+        <rect x="60" y="50" width="360" height="220" fill="none" stroke="var(--peri)" stroke-width="7" stroke-linejoin="round"/>
+        <g fill="var(--peri)"><circle cx="60" cy="50" r="8"/><circle cx="420" cy="50" r="8"/><circle cx="420" cy="270" r="8"/><circle cx="60" cy="270" r="8"/></g>
+        <text class="lbl" x="240" y="36" text-anchor="middle">٦ سم</text><text class="lbl" x="240" y="302" text-anchor="middle">٦ سم</text>
+        <text class="lbl" x="432" y="167" text-anchor="start">٤ سم</text><text class="lbl" x="48" y="167" text-anchor="end">٤ سم</text>
+      </svg></div>
+    </div>
+  </section>
+
+  <!-- ٥ المساحة -->
+  <section class="slide" data-title="المساحة">
+    <div class="sh"><span class="ic" data-icon="tiles"></span><div><span class="eyebrow">المفهوم الثاني</span><h2 class="ca">المساحة</h2></div></div>
+    <div class="concept">
+      <div>
+        <p class="def">المساحة هي عدد الوحدات المربعة التي تغطي سطح الشكل دون فراغات أو تداخل.</p>
+        <div class="unitline"><span class="ic" data-icon="unitSq"></span><span>تُقاس بوحدات مربعة: <b>سم²، م²، كم²</b></span></div>
+        <p class="calc">٤ صفوف × ٦ مربعات = <span class="ca">٢٤ سم²</span></p>
+      </div>
+      <div class="fig"><svg viewBox="0 0 480 320" id="areaFig" aria-label="مستطيل مقسّم إلى ٢٤ مربعاً"></svg></div>
+    </div>
+  </section>
+
+  <!-- ٦ ورشة البناء -->
+  <section class="slide" data-title="ورشة البناء">
+    <div class="sh" style="margin-bottom:14px"><span class="ic" data-icon="pencil"></span><div><span class="eyebrow">نشاط تفاعلي · اضغطي أو اسحبي على المربعات</span><h2>ورشة البناء</h2></div></div>
+    <div class="builder">
+      <div class="board">
+        <div class="toolbar">
+          <button class="tool" id="tAuto" type="button" aria-pressed="true"><span class="ic" data-icon="hand"></span>تلقائي</button>
+          <button class="tool" id="tDraw" type="button" aria-pressed="false"><span class="ic" data-icon="plus"></span>إضافة</button>
+          <button class="tool" id="tErase" type="button" aria-pressed="false"><span class="ic" data-icon="eraser"></span>ممحاة</button>
+          <button class="tool end" id="tClear" type="button"><span class="ic" data-icon="trash"></span>مسح</button>
+        </div>
+        <div id="grid" aria-label="شبكة مربعات ١٢ × ٩"></div>
+      </div>
+      <div class="side">
+        <div class="stats">
+          <div class="stat a"><div class="k">المساحة</div><div class="v ca num" id="vArea">٠</div><div class="u">وحدة مربعة</div></div>
+          <div class="stat p"><div class="k">المحيط</div><div class="v cp num" id="vPeri">٠</div><div class="u">وحدة طول</div></div>
+        </div>
+        <p id="shapeMsg" aria-live="polite"></p>
+        <div class="chal">
+          <div class="chal-top"><span id="chLvl"></span><div class="chdots" id="chDots"></div></div>
+          <p id="chText"></p>
+          <div class="chact">
+            <button class="btn" id="chCheck" type="button">تحقّقي</button>
+            <button class="btn sec" id="chHint" type="button">تلميح</button>
+            <button class="btn sec" id="chNext" type="button">التالي</button>
+          </div>
+          <p id="chFb" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ٧ اكتشفي -->
+  <section class="slide" data-title="اكتشفي">
+    <div class="sh"><span class="ic" data-icon="magnifier"></span><div><span class="eyebrow">اكتشفي</span><h2>مساحة واحدة… ومحيطات مختلفة</h2></div></div>
+    <div class="disc" id="disc">
+      <div class="card"><svg viewBox="0 0 340 200" data-rect="12,1"></svg><span class="dim">١٢ × ١</span><span class="vals"><span class="ca">المساحة ١٢</span> · <span class="cp pv">المحيط ٢٦</span></span></div>
+      <div class="card"><svg viewBox="0 0 340 200" data-rect="6,2"></svg><span class="dim">٦ × ٢</span><span class="vals"><span class="ca">المساحة ١٢</span> · <span class="cp pv">المحيط ١٦</span></span></div>
+      <div class="card"><svg viewBox="0 0 340 200" data-rect="4,3"></svg><span class="dim">٤ × ٣</span><span class="vals"><span class="ca">المساحة ١٢</span> · <span class="cp pv">المحيط ١٤</span></span></div>
+    </div>
+    <div class="disc-foot"><button class="btn" id="discBtn" type="button">اكشفي المحيطات</button><p>كلما اقترب المستطيل من شكل المربع صغر محيطه.</p></div>
+  </section>
+
+  <!-- ٨ المختبر -->
+  <section class="slide" data-title="مختبر القوانين">
+    <div class="sh" style="margin-bottom:14px"><span class="ic" data-icon="flask"></span><div><span class="eyebrow">نشاط تفاعلي · حرّكي المؤشرات</span><h2>مختبر القوانين</h2></div></div>
+    <div class="lab">
+      <div>
+        <div class="tabs" id="labTabs"></div>
+        <div id="labSliders"></div>
+        <div class="formula" id="labFormula"></div>
+        <p id="labTip"></p>
+      </div>
+      <div class="labfig"><svg id="labSvg" viewBox="0 0 420 330" aria-label="رسم الشكل على شبكة الوحدات"></svg></div>
+    </div>
+  </section>
+
+  <!-- ٩ الملخص -->
+  <section class="slide" data-title="ملخص القوانين">
+    <div class="sh"><span class="ic" data-icon="book"></span><div><span class="eyebrow">ملخص</span><h2>قوانين المحيط والمساحة</h2></div></div>
+    <div class="sum">
+      <div class="card"><span class="ic" data-icon="shRect"></span><h3>المستطيل</h3><div class="row a"><small>المساحة</small>الطول × العرض</div><div class="row p"><small>المحيط</small>٢ × (الطول + العرض)</div></div>
+      <div class="card"><span class="ic" data-icon="shSquare"></span><h3>المربع</h3><div class="row a"><small>المساحة</small>الضلع × الضلع</div><div class="row p"><small>المحيط</small>٤ × الضلع</div></div>
+      <div class="card"><span class="ic" data-icon="shTri"></span><h3>المثلث</h3><div class="row a"><small>المساحة</small>½ × القاعدة × الارتفاع</div><div class="row p"><small>المحيط</small>مجموع الأضلاع الثلاثة</div></div>
+      <div class="card"><span class="ic" data-icon="shPara"></span><h3>متوازي الأضلاع</h3><div class="row a"><small>المساحة</small>القاعدة × الارتفاع</div><div class="row p"><small>المحيط</small>٢ × (القاعدة + الضلع المائل)</div></div>
+      <div class="card"><span class="ic" data-icon="shTrap"></span><h3>شبه المنحرف</h3><div class="row a"><small>المساحة</small>½ × (مجموع القاعدتين) × الارتفاع</div><div class="row p"><small>المحيط</small>مجموع الأضلاع الأربعة</div></div>
+    </div>
+  </section>
+
+  <!-- ١٠ الأخطاء الشائعة -->
+  <section class="slide" data-title="أخطاء شائعة">
+    <div class="sh"><span class="ic" data-icon="warn"></span><div><span class="eyebrow">انتبهي</span><h2>أخطاء شائعة في الاختبارات</h2></div></div>
+    <div class="mist">
+      <div class="card"><span class="ic" data-icon="mixUp"></span><h3>الخلط بين المفهومين</h3><p>حساب المحيط عندما يطلب السؤال المساحة. مستطيل ٨ × ٥: مساحته ٤٠ ومحيطه ٢٦.</p><p class="fix">اسألي نفسك: هل أُحيط بالشكل أم أُغطّيه؟</p></div>
+      <div class="card"><span class="ic" data-icon="slant"></span><h3>الضلع المائل بدل الارتفاع</h3><p>في المثلث ومتوازي الأضلاع نستخدم الارتفاع العمودي على القاعدة، لا الضلع المائل.</p><p class="fix">ابحثي عن الخط المتقطّع والزاوية القائمة.</p></div>
+      <div class="card"><span class="ic" data-icon="units"></span><h3>نسيان الوحدة أو تحويلها</h3><p>المساحة بوحدات مربعة (سم²) والمحيط بوحدات طول (سم). وحّدي الوحدات قبل الحساب: ٥٠ سم = ٠٫٥ م.</p><p class="fix">اكتبي الوحدة مع كل ناتج.</p></div>
+    </div>
+  </section>
+
+  <!-- ١١ الاختبار -->
+  <section class="slide" data-title="اختبري نفسك">
+    <div class="sh" style="margin-bottom:12px"><span class="ic" data-icon="checklist"></span><div><span class="eyebrow">أسئلة بنمط التقييم الخارجي</span><h2>اختبري نفسك</h2></div></div>
+    <div class="quiz" id="quizBox"></div>
+  </section>
+
+  <!-- ١٢ الختام -->
+  <section class="slide" data-title="بطاقة الخروج">
+    <div class="sh"><span class="ic" data-icon="ticket"></span><div><span class="eyebrow">الختام</span><h2>بطاقة الخروج</h2></div></div>
+    <div class="exit">
+      <div>
+        <p class="task">ارسمي على ورقة المربعات مستطيلين لهما <span class="ca">المساحة نفسها</span> و<span class="cp">محيطان مختلفان</span>.</p>
+        <ul><li>اكتبي أبعاد كل مستطيل.</li><li>احسبي مساحة كلٍّ منهما ومحيطه.</li><li>أيّهما يحتاج سياجاً أقل؟ ولماذا؟</li></ul>
+      </div>
+      <div class="ic" data-icon="exitArt"></div>
+    </div>
+  </section>
+
+  <!-- ١٣ سير الدرس -->
+  <section class="slide" data-title="سير الدرس">
+    <div class="sh"><span class="ic" data-icon="clock"></span><div><span class="eyebrow">للمعلمة</span><h2>سير الدرس (٤٥ دقيقة)</h2></div></div>
+    <div class="plan">
+      <div class="card"><span class="ic" data-icon="bulb"></span><span class="t">٥ دقائق · الشرائح ٢–٣</span><b>التهيئة</b><p>عرض الأهداف ومثال الحديقة ونقاش الفرق بين السياج والعشب.</p></div>
+      <div class="card"><span class="ic" data-icon="tiles"></span><span class="t">٥ دقائق · الشرائح ٤–٥</span><b>المفاهيم</b><p>تعريف المحيط والمساحة ووحدة قياس كلٍّ منهما.</p></div>
+      <div class="card"><span class="ic" data-icon="pencil"></span><span class="t">١٥ دقيقة · الشرائح ٦–٨</span><b>البناء والاكتشاف</b><p>تخرج الطالبات لحل التحديات على السبورة، ثم استنتاج القوانين في المختبر.</p></div>
+      <div class="card"><span class="ic" data-icon="checklist"></span><span class="t">١٥ دقيقة · الشرائح ٩–١١</span><b>التقويم</b><p>مراجعة القوانين والأخطاء الشائعة، ثم الأسئلة العشرة جماعياً.</p></div>
+      <div class="card"><span class="ic" data-icon="ticket"></span><span class="t">٥ دقائق · الشريحة ١٢</span><b>الختام</b><p>بطاقة الخروج فردياً على ورقة المربعات.</p></div>
+    </div>
+  </section>
+
+  <nav class="navbar" aria-label="التنقل بين الشرائح">
+    <span class="ttl" id="slideTitle"></span>
+    <div class="prog"><i id="progBar"></i></div>
+    <button class="nb ic" id="prev" type="button" aria-label="الشريحة السابقة" data-icon="arrowPrev"></button>
+    <span class="count num" id="count"></span>
+    <button class="nb ic" id="next" type="button" aria-label="الشريحة التالية" data-icon="arrowNext"></button>
+    <button class="nb ic" id="fs" type="button" aria-label="ملء الشاشة" data-icon="fullscreen"></button>
+  </nav>
+</div>
+
+<script>
+(function(){
+  const AR='٠١٢٣٤٥٦٧٨٩';
+  const ar=n=>String(n).replace('.', '٫').replace(/\d/g,d=>AR[d]);
+  const fmt=n=>ar(Math.round(n*100)/100);
+
+  /* ===== أيقونات مرسومة يدوياً ===== */
+  const V=(vb,b)=>'<svg viewBox="'+vb+'" aria-hidden="true">'+b+'</svg>';
+  const I={
+    target:V('0 0 64 64','<circle class="s" cx="30" cy="34" r="24"/><circle class="sa" cx="30" cy="34" r="14"/><circle class="fa" cx="30" cy="34" r="5"/><path class="s" d="M30 34 52 12M46 8l6 4 4 6"/>'),
+    compare:V('0 0 64 64','<rect class="sa" x="6" y="14" width="24" height="36" rx="2" stroke-dasharray="5 4"/><rect class="fb" x="36" y="14" width="22" height="36"/><path class="sb" d="M36 14h22v36H36zM36 26h22M36 38h22M47 14v36"/>'),
+    tiles:V('0 0 64 64','<rect class="fb" x="8" y="14" width="48" height="36"/><path class="sb" d="M8 14h48v36H8zM8 26h48M8 38h48M20 14v36M32 14v36M44 14v36"/>'),
+    unitSq:V('0 0 64 64','<rect class="fb" x="14" y="14" width="36" height="36"/><rect class="sb" x="14" y="14" width="36" height="36"/><path class="s" d="M14 58h36M14 55v6M50 55v6"/><text x="32" y="38" text-anchor="middle" font-size="14" font-weight="700" fill="var(--area)">١</text>'),
+    ruler:V('0 0 64 64','<g transform="rotate(-20 32 32)"><rect class="s" x="4" y="22" width="56" height="20" rx="3"/><path class="sa" d="M12 22v8M20 22v5M28 22v8M36 22v5M44 22v8M52 22v5"/></g>'),
+    house:V('0 0 64 64','<path class="s" d="M8 30 32 10l24 20"/><path class="s" d="M14 26v28h36V26"/><rect class="fb" x="26" y="36" width="12" height="18"/><path class="sb" d="M26 54V36h12v18"/><path class="sa" d="M4 58h56" stroke-dasharray="4 4"/>'),
+    bulb:V('0 0 64 64','<path class="s" d="M22 40c-5-4-8-9-8-15a18 18 0 0136 0c0 6-3 11-8 15v6H22z"/><path class="s" d="M24 52h16M27 58h10"/><path class="sa" d="M32 22v10M27 27h10"/><path class="sa" d="M6 12l4 3M58 12l-4 3M32 1v4"/>'),
+    fence:V('0 0 64 64','<path class="sa" d="M8 54V20l5-6 5 6v34M26 54V20l5-6 5 6v34M44 54V20l5-6 5 6v34"/><path class="s" d="M4 28h56M4 44h56"/><path class="s" d="M2 58h60"/>'),
+    grass:V('0 0 64 64','<rect class="fb" x="4" y="40" width="56" height="18" rx="3"/><path class="sb" d="M10 40c2-10 0-16-4-22M10 40c2-8 6-12 10-14M26 40c0-10 2-18 6-24M30 40c2-6 6-10 12-12M46 40c0-8-2-14-6-20M50 40c2-8 6-12 10-12"/><path class="s" d="M4 40h56"/>'),
+    pencil:V('0 0 64 64','<path class="s" d="M42 8l14 14-30 30H12V38z"/><path class="sa" d="M36 14l14 14"/><path class="s" d="M12 52l6-6"/><rect class="fb" x="6" y="54" width="10" height="6"/>'),
+    hand:V('0 0 64 64','<path class="s" d="M22 34V12a5 5 0 0110 0v18M32 28v-4a5 5 0 0110 0v8M42 30a5 5 0 0110 0v12c0 10-8 18-18 18h-2c-6 0-10-3-14-8l-8-11a5 5 0 018-6l4 5"/>'),
+    plus:V('0 0 64 64','<rect class="s" x="8" y="8" width="48" height="48" rx="6"/><path class="s" d="M32 20v24M20 32h24"/>'),
+    eraser:V('0 0 64 64','<path class="s" d="M36 10l18 18-24 24H16L8 44z"/><path class="s" d="M22 24l18 18M30 52h26"/>'),
+    trash:V('0 0 64 64','<path class="s" d="M10 16h44M24 16V8h16v8M16 16l3 40h26l3-40M28 26v20M36 26v20"/>'),
+    magnifier:V('0 0 64 64','<circle class="s" cx="26" cy="26" r="18"/><path class="s" d="M39 39l18 18"/><path class="sb" d="M16 20h20M16 26h20M16 32h20M20 16v20M26 16v20M32 16v20" stroke-width="2"/>'),
+    flask:V('0 0 64 64','<path class="s" d="M24 6h16M27 6v18L10 52a5 5 0 004 8h36a5 5 0 004-8L37 24V6"/><path class="fb" d="M17 42h30l5 10a2 2 0 01-2 4H14a2 2 0 01-2-4z"/><path class="sa" d="M17 42h30"/><circle class="fa" cx="30" cy="50" r="2.5"/><circle class="fa" cx="38" cy="47" r="2"/>'),
+    book:V('0 0 64 64','<path class="s" d="M32 14c-6-5-16-6-24-4v42c8-2 18-1 24 4 6-5 16-6 24-4V10c-8-2-18-1-24 4zM32 14v42"/><path class="sb" d="M14 22h12M14 30h12M38 22h12"/><path class="sa" d="M38 30h12"/>'),
+    warn:V('0 0 64 64','<path class="s" d="M32 6l28 50H4z"/><path class="sa" d="M32 24v16"/><circle class="fa" cx="32" cy="48" r="3"/>'),
+    mixUp:V('0 0 64 64','<rect class="sa" x="4" y="8" width="24" height="24" rx="2"/><rect class="fb" x="36" y="32" width="24" height="24"/><rect class="sb" x="36" y="32" width="24" height="24"/><path class="s" d="M30 46c-12 0-16-6-16-12M10 38l4-4 4 4M34 18c12 0 16 6 16 12M54 26l-4 4-4-4"/>'),
+    slant:V('0 0 64 64','<path class="fb" d="M6 54h38l14-40H20z"/><path class="s" d="M6 54h38l14-40H20z"/><path class="sa" d="M20 14v40" stroke-dasharray="4 4"/><path class="sa" d="M20 46h8v8"/>'),
+    units:V('0 0 64 64','<path class="s" d="M6 20h28M6 16v8M34 16v8"/><text x="20" y="12" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink)">سم</text><rect class="fb" x="34" y="32" width="24" height="24"/><rect class="sb" x="34" y="32" width="24" height="24"/><text x="46" y="49" text-anchor="middle" font-size="11" font-weight="700" fill="var(--area)">سم²</text>'),
+    checklist:V('0 0 64 64','<rect class="s" x="10" y="6" width="44" height="54" rx="5"/><path class="s" d="M24 6v6h16V6"/><path class="sa" d="M18 26l4 4 7-8M18 42l4 4 7-8"/><path class="s" d="M34 27h12M34 43h12"/>'),
+    ticket:V('0 0 64 64','<path class="s" d="M6 16h52v10a6 6 0 000 12v10H6V38a6 6 0 000-12z"/><path class="sa" d="M22 16v32" stroke-dasharray="4 4"/><rect class="fb" x="30" y="24" width="18" height="16"/><path class="sb" d="M30 24h18v16H30zM39 24v16M30 32h18"/>'),
+    clock:V('0 0 64 64','<circle class="s" cx="32" cy="34" r="24"/><path class="sa" d="M32 20v14l10 6"/><path class="s" d="M26 4h12M32 4v6"/>'),
+    star:V('0 0 64 64','<path class="s" d="M32 6l8 17 18 2-13 12 4 18-17-9-17 9 4-18L6 25l18-2z"/><path class="fb" d="M32 16l5 11 12 1-9 8 3 12-11-6-11 6 3-12-9-8 12-1z"/>'),
+    arrowNext:V('0 0 64 64','<path class="s" d="M40 12L20 32l20 20" stroke-width="6"/>'),
+    arrowPrev:V('0 0 64 64','<path class="s" d="M24 12l20 20-20 20" stroke-width="6"/>'),
+    fullscreen:V('0 0 64 64','<path class="s" d="M8 22V8h14M42 8h14v14M56 42v14H42M22 56H8V42" stroke-width="5"/>'),
+    shRect:V('0 0 120 90','<rect class="fb" x="10" y="18" width="100" height="56"/><rect class="sa" x="10" y="18" width="100" height="56"/>'),
+    shSquare:V('0 0 120 90','<rect class="fb" x="32" y="12" width="64" height="64"/><rect class="sa" x="32" y="12" width="64" height="64"/>'),
+    shTri:V('0 0 120 90','<path class="fb" d="M10 78h100L42 12z"/><path class="sa" d="M10 78h100L42 12z"/><path class="s" d="M42 12v66" stroke-dasharray="5 4" stroke-width="2"/>'),
+    shPara:V('0 0 120 90','<path class="fb" d="M6 76h80l28-60H34z"/><path class="sa" d="M6 76h80l28-60H34z"/><path class="s" d="M34 16v60" stroke-dasharray="5 4" stroke-width="2"/>'),
+    shTrap:V('0 0 120 90','<path class="fb" d="M6 76h108L86 16H34z"/><path class="sa" d="M6 76h108L86 16H34z"/><path class="s" d="M34 16v60" stroke-dasharray="5 4" stroke-width="2"/>'),
+    garden:V('0 0 560 400',
+      '<rect x="60" y="70" width="440" height="270" rx="6" fill="var(--area-soft)"/>'+
+      (function(){let s='';for(let x=90;x<500;x+=46)for(let y=100;y<330;y+=44){s+='<path class="sb" stroke-width="2.5" d="M'+x+' '+(y+14)+'q3-12 0-18M'+(x+6)+' '+(y+14)+'q4-9 10-12"/>'}return s})()+
+      '<rect x="60" y="70" width="440" height="270" rx="6" fill="none" stroke="var(--peri)" stroke-width="6"/>'+
+      (function(){let s='';for(let x=60;x<=500;x+=55){s+='<path class="sa" stroke-width="5" d="M'+x+' 70v-26l-7-8M'+x+' 70v-26l7-8"/><path class="sa" stroke-width="5" d="M'+x+' 340v26"/>'}return s})()+
+      '<rect x="230" y="190" width="100" height="50" rx="25" fill="var(--card)" stroke="var(--ink)" stroke-width="3"/><circle cx="262" cy="212" r="9" fill="var(--peri)"/><circle cx="290" cy="220" r="7" fill="var(--area)"/><circle cx="306" cy="208" r="6" fill="var(--peri)"/>'+
+      '<text x="280" y="30" text-anchor="middle" font-size="22" font-weight="700" fill="var(--peri)">السياج</text><text x="280" y="290" text-anchor="middle" font-size="22" font-weight="700" fill="var(--area)">العشب</text>'),
+    coverArt:V('0 0 400 400',
+      (function(){let s='';for(let i=0;i<5;i++)for(let j=0;j<4;j++){if(i>2&&j<2)continue;s+='<rect x="'+(60+i*56)+'" y="'+(90+j*56)+'" width="56" height="56" fill="var(--area-soft)" stroke="var(--area)" stroke-width="2"/>'}return s})()+
+      '<path d="M60 90H228V202H340V314H60Z" fill="none" stroke="var(--peri)" stroke-width="7" stroke-linejoin="round"/>'+
+      '<g transform="rotate(-35 300 110)"><rect x="250" y="50" width="34" height="150" rx="4" fill="var(--card)" stroke="var(--ink)" stroke-width="3"/><path d="M250 70h14M250 90h9M250 110h14M250 130h9M250 150h14M250 170h9" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/></g>'+
+      '<circle cx="60" cy="314" r="8" fill="var(--peri)"/><circle cx="340" cy="314" r="8" fill="var(--peri)"/>'),
+    exitArt:V('0 0 380 380',
+      '<rect x="40" y="40" width="300" height="300" rx="16" fill="var(--card)" stroke="var(--ink)" stroke-width="3"/>'+
+      (function(){let s='';for(let k=70;k<340;k+=30)s+='<path d="M'+k+' 40v300M40 '+k+'h300" stroke="var(--line)" stroke-width="1.5"/>';return s})()+
+      '<rect x="70" y="70" width="180" height="60" fill="var(--area-soft)" stroke="var(--peri)" stroke-width="5"/>'+
+      '<rect x="70" y="190" width="120" height="90" fill="var(--area-soft)" stroke="var(--peri)" stroke-width="5"/>'+
+      '<text x="160" y="108" text-anchor="middle" font-size="22" font-weight="700" fill="var(--ink)">٦ × ٢</text><text x="130" y="242" text-anchor="middle" font-size="22" font-weight="700" fill="var(--ink)">٤ × ٣</text>'+
+      '<path d="M256 236l12 12 26-28" stroke="var(--ok)" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>')
+  };
+  document.querySelectorAll('[data-icon]').forEach(el=>{el.innerHTML=I[el.dataset.icon]||''});
+
+  /* شكل المساحة في الشريحة ٥ */
+  (function(){let s='';const u=60,x0=60,y0=40;
+    for(let r=0;r<4;r++)for(let c=0;c<6;c++)s+='<rect x="'+(x0+c*u)+'" y="'+(y0+r*u)+'" width="'+u+'" height="'+u+'" fill="var(--area-soft)" stroke="var(--area)" stroke-width="2"/><text x="'+(x0+c*u+u/2)+'" y="'+(y0+r*u+u/2+7)+'" text-anchor="middle" font-size="18" font-weight="700" fill="var(--area)">'+ar(r*6+c+1)+'</text>';
+    s+='<text class="lbl" x="240" y="306" text-anchor="middle">٦ سم</text><text class="lbl" x="432" y="167" text-anchor="start">٤ سم</text>';
+    document.getElementById('areaFig').innerHTML=s})();
+
+  /* مستطيلات شريحة الاكتشاف */
+  document.querySelectorAll('[data-rect]').forEach(svg=>{
+    const [w,h]=svg.dataset.rect.split(',').map(Number);const u=Math.min(300/w,160/h,48);
+    const x0=(340-w*u)/2,y0=(200-h*u)/2;let s='';
+    for(let i=0;i<w;i++)for(let j=0;j<h;j++)s+='<rect x="'+(x0+i*u)+'" y="'+(y0+j*u)+'" width="'+u+'" height="'+u+'" fill="var(--area-soft)" stroke="var(--area)" stroke-width="1.5"/>';
+    s+='<rect class="pv" x="'+x0+'" y="'+y0+'" width="'+(w*u)+'" height="'+(h*u)+'" fill="none" stroke="var(--peri)" stroke-width="5"/>';
+    svg.innerHTML=s;
+  });
+  document.getElementById('discBtn').addEventListener('click',e=>{document.getElementById('disc').classList.toggle('show');e.target.textContent=document.getElementById('disc').classList.contains('show')?'إخفاء المحيطات':'اكشفي المحيطات'});
+  document.getElementById('revealGarden').addEventListener('click',()=>{document.getElementById('a1').classList.add('show');document.getElementById('a2').classList.add('show')});
+
+  /* ===== الشرائح والتنقل ===== */
+  const stage=document.getElementById('stage');
+  function fit(){const s=Math.min(innerWidth/1280,innerHeight/720);stage.style.transform='translate(-50%,-50%) scale('+s+')'}
+  addEventListener('resize',fit);fit();
+  const slides=[...document.querySelectorAll('.slide')];let cur=0;
+  function go(n,push){
+    cur=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach((s,i)=>s.classList.toggle('on',i===cur));
+    document.getElementById('count').textContent=ar(cur+1)+' / '+ar(slides.length);
+    document.getElementById('slideTitle').textContent=slides[cur].dataset.title;
+    document.getElementById('progBar').style.width=((cur+1)/slides.length*100)+'%';
+    document.getElementById('prev').disabled=cur===0;document.getElementById('next').disabled=cur===slides.length-1;
+    if(push!==false){try{history.replaceState(null,'','#slide-'+(cur+1))}catch(_){}}
+  }
+  document.getElementById('prev').addEventListener('click',()=>go(cur-1));
+  document.getElementById('next').addEventListener('click',()=>go(cur+1));
+  document.getElementById('fs').addEventListener('click',()=>{try{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen().catch(()=>{})}catch(_){}});
+  addEventListener('keydown',e=>{
+    if(e.target&&e.target.tagName==='INPUT')return;
+    if(['ArrowLeft','PageDown',' '].includes(e.key)){e.preventDefault();go(cur+1)}
+    else if(['ArrowRight','PageUp'].includes(e.key)){e.preventDefault();go(cur-1)}
+    else if(e.key==='Home')go(0); else if(e.key==='End')go(slides.length-1);
+  });
+  const fromHash=()=>{const m=/^#slide-(\d+)$/.exec(location.hash);if(m)go(+m[1]-1,false)};
+  addEventListener('hashchange',fromHash);
+  go(0,false);fromHash();
+
+  /* ===== ورشة البناء ===== */
+  const COLS=12,ROWS=9;const cells=new Array(COLS*ROWS).fill(0);
+  const grid=document.getElementById('grid');const els=[];
+  for(let i=0;i<COLS*ROWS;i++){const b=document.createElement('button');b.className='cell';b.type='button';b.dataset.i=i;
+    b.setAttribute('aria-label','مربع في الصف '+ar(Math.floor(i/COLS)+1)+' والعمود '+ar(i%COLS+1));grid.appendChild(b);els.push(b)}
+  const on=(r,c)=>r>=0&&r<ROWS&&c>=0&&c<COLS&&cells[r*COLS+c]===1;
+  function stats(){
+    let area=0,per=0,a=99,b=-1,c1=99,c2=-1,first=-1;
+    for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){if(!on(r,c))continue;area++;if(first<0)first=r*COLS+c;
+      per+=(!on(r-1,c))+(!on(r+1,c))+(!on(r,c-1))+(!on(r,c+1));a=Math.min(a,r);b=Math.max(b,r);c1=Math.min(c1,c);c2=Math.max(c2,c)}
+    let connected=true;
+    if(area){const seen=new Set([first]),st=[first];while(st.length){const i=st.pop(),r=Math.floor(i/COLS),c=i%COLS;
+      [[r-1,c],[r+1,c],[r,c-1],[r,c+1]].forEach(([x,y])=>{const j=x*COLS+y;if(on(x,y)&&!seen.has(j)){seen.add(j);st.push(j)}})}connected=seen.size===area}
+    const w=c2-c1+1,h=b-a+1;return{area,per,connected,rect:area>0&&connected&&area===w*h,w,h};
+  }
+  function render(){
+    for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const el=els[r*COLS+c];
+      if(!on(r,c)){el.classList.remove('on');el.style.boxShadow='';continue}
+      el.classList.add('on');const s=['inset 0 0 0 1px rgba(42,88,201,.45)'];
+      if(!on(r-1,c))s.push('inset 0 4px 0 var(--peri)');if(!on(r+1,c))s.push('inset 0 -4px 0 var(--peri)');
+      if(!on(r,c-1))s.push('inset -4px 0 0 var(--peri)');if(!on(r,c+1))s.push('inset 4px 0 0 var(--peri)');
+      el.style.boxShadow=s.join(',')}
+    const st=stats();document.getElementById('vArea').textContent=ar(st.area);document.getElementById('vPeri').textContent=ar(st.per);
+    const m=document.getElementById('shapeMsg');
+    if(!st.area)m.textContent='الشبكة فارغة. ابدئي بالضغط على أي مربع.';
+    else if(!st.connected)m.innerHTML='<span class="cp">الشكل مكوّن من أجزاء منفصلة.</span> صِلي المربعات بأضلاعها.';
+    else if(st.rect){const L=Math.max(st.w,st.h),W=Math.min(st.w,st.h);
+      m.innerHTML=(L===W?'<b>مربع</b> ضلعه '+ar(L)+': ':'<b>مستطيل</b> '+ar(L)+' × '+ar(W)+': ')+'<span class="ca">المساحة = '+ar(L)+' × '+ar(W)+' = '+ar(L*W)+'</span> · <span class="cp">المحيط = ٢ × ('+ar(L)+' + '+ar(W)+') = '+ar(2*(L+W))+'</span>'}
+    else m.innerHTML='شكل مركّب: عدّي المربعات <span class="ca">للمساحة</span> والأضلاع الحمراء <span class="cp">للمحيط</span>.';
+  }
+  let tool='auto',painting=false,pv=1;const tools={auto:'tAuto',draw:'tDraw',erase:'tErase'};
+  Object.entries(tools).forEach(([k,id])=>document.getElementById(id).addEventListener('click',()=>{tool=k;Object.values(tools).forEach(x=>document.getElementById(x).setAttribute('aria-pressed',x===id))}));
+  document.getElementById('tClear').addEventListener('click',()=>{cells.fill(0);render();setFb('','')});
+  const setCell=i=>{if(cells[i]!==pv){cells[i]=pv;render()}};
+  grid.addEventListener('pointerdown',e=>{const c=e.target.closest('.cell');if(!c)return;e.preventDefault();const i=+c.dataset.i;
+    pv=tool==='erase'?0:tool==='draw'?1:(cells[i]?0:1);painting=true;setCell(i);try{grid.setPointerCapture(e.pointerId)}catch(_){}});
+  grid.addEventListener('pointermove',e=>{if(!painting)return;const t=document.elementFromPoint(e.clientX,e.clientY);const c=t&&t.closest?t.closest('.cell'):null;if(c)setCell(+c.dataset.i)});
+  ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>grid.addEventListener(ev,()=>painting=false));
+  grid.addEventListener('click',e=>{if(e.detail!==0)return;const c=e.target.closest('.cell');if(!c)return;const i=+c.dataset.i;cells[i]=cells[i]?0:1;render()});
+
+  const CH=[
+    {l:'مساحة بالعدّ',t:'ابني مستطيلاً مساحته ١٢ وحدة مربعة.',h:'عددان حاصل ضربهما ١٢، مثل ٣ × ٤ أو ٢ × ٦.',ok:s=>s.rect&&s.area===12},
+    {l:'المحيط',t:'ابني مربعاً محيطه ١٦ وحدة.',h:'المحيط = ٤ × الضلع، إذن الضلع = ١٦ ÷ ٤.',ok:s=>s.rect&&s.w===s.h&&s.per===16},
+    {l:'شرطان معاً',t:'ابني شكلاً مساحته ٨ ومحيطه ١٢.',h:'جرّبي مستطيلاً عرضه ٢. كم طوله ليحوي ٨ مربعات؟',ok:s=>s.area===8&&s.per===12},
+    {l:'المساحة نفسها',t:'ابني شكلاً مساحته ٦ ومحيطه ١٤.',h:'كلما صار الشكل رفيعاً زاد محيطه. جرّبي صفاً واحداً.',ok:s=>s.area===6&&s.per===14},
+    {l:'أصغر محيط',t:'ابني شكلاً مساحته ٩ بأصغر محيط ممكن.',h:'الشكل الأقرب إلى المربع محيطه أصغر.',ok:s=>s.area===9&&s.per===12},
+    {l:'شكل مركّب',t:'ابني شكلاً غير مستطيل مساحته ١٠ ومحيطه ١٤.',h:'ابني مستطيلاً ٣ × ٤ واحذفي مربعين من أحد أركانه.',ok:s=>!s.rect&&s.area===10&&s.per===14},
+    {l:'أكبر مساحة',t:'سياج طوله ٢٠ وحدة: ابني الشكل الذي يحيط به بأكبر مساحة.',h:'قارني: ٢ × ٨، ٣ × ٧، ٤ × ٦، ٥ × ٥.',ok:s=>s.per===20&&s.area===25}
+  ];
+  let ci=0;const done=new Array(CH.length).fill(false);const fb=document.getElementById('chFb');
+  function setFb(c,t){fb.className=c;fb.textContent=t}
+  function renderCh(){
+    document.getElementById('chLvl').textContent='التحدي '+ar(ci+1)+' · '+CH[ci].l+(done[ci]?' ✓':'');
+    document.getElementById('chText').textContent=CH[ci].t;
+    const d=document.getElementById('chDots');d.innerHTML='';
+    CH.forEach((_,i)=>{const b=document.createElement('button');b.type='button';b.textContent=done[i]?'✓':ar(i+1);
+      b.setAttribute('aria-label','التحدي '+ar(i+1));if(i===ci)b.classList.add('cur');if(done[i])b.classList.add('done');
+      b.addEventListener('click',()=>{ci=i;setFb('','');renderCh()});d.appendChild(b)});
+  }
+  document.getElementById('chCheck').addEventListener('click',()=>{const s=stats();
+    if(!s.area)return setFb('bad','ابني شكلاً على الشبكة أولاً.');
+    if(!s.connected)return setFb('bad','الشكل غير متصل. صِلي المربعات بأضلاعها.');
+    if(CH[ci].ok(s)){done[ci]=true;setFb('ok',done.every(Boolean)?'رائع! أنجزتِ التحديات السبعة كلها.':'صحيح! المساحة '+ar(s.area)+' والمحيط '+ar(s.per)+'.');renderCh()}
+    else setFb('bad','ليس بعد: المساحة '+ar(s.area)+' والمحيط '+ar(s.per)+'. عدّلي الشكل وحاولي مجدداً.')});
+  document.getElementById('chHint').addEventListener('click',()=>setFb('hint','تلميح: '+CH[ci].h));
+  document.getElementById('chNext').addEventListener('click',()=>{let k=(ci+1)%CH.length;for(let j=1;j<=CH.length;j++){const x=(ci+j)%CH.length;if(!done[x]){k=x;break}}ci=k;setFb('','');renderCh()});
+  for(let r=3;r<=5;r++)for(let c=4;c<=7;c++)cells[r*COLS+c]=1;
+  render();renderCh();
+
+  /* ===== مختبر القوانين ===== */
+  const SH={
+    rect:{n:'مستطيل',ic:'shRect',p:[['l','الطول',6],['w','العرض',4]]},
+    square:{n:'مربع',ic:'shSquare',p:[['s','طول الضلع',5]]},
+    tri:{n:'مثلث',ic:'shTri',p:[['b','القاعدة',8],['h','الارتفاع',5]]},
+    para:{n:'متوازي أضلاع',ic:'shPara',p:[['b','القاعدة',7],['h','الارتفاع',4]]},
+    trap:{n:'شبه منحرف',ic:'shTrap',p:[['a','القاعدة الكبرى',9],['c','القاعدة الصغرى',5],['h','الارتفاع',4]]}
+  };
+  const val={};Object.entries(SH).forEach(([k,v])=>{val[k]={};v.p.forEach(([id,,d])=>val[k][id]=d)});
+  let shape='rect';const tabs=document.getElementById('labTabs');
+  Object.entries(SH).forEach(([k,v])=>{const b=document.createElement('button');b.className='tool';b.type='button';b.dataset.k=k;
+    b.innerHTML='<span class="ic">'+I[v.ic]+'</span>'+v.n;b.addEventListener('click',()=>{shape=k;buildSliders();drawLab()});tabs.appendChild(b)});
+  function buildSliders(){
+    [...tabs.children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===shape));
+    const box=document.getElementById('labSliders');box.innerHTML='';
+    SH[shape].p.forEach(([id,label])=>{const max=(id==='h'||id==='w')?7:12;const d=document.createElement('div');d.className='slider';
+      d.innerHTML='<label for="s_'+id+'"><span>'+label+'</span><span class="num" id="o_'+id+'">'+ar(val[shape][id])+' وحدة</span></label><input type="range" id="s_'+id+'" min="1" max="'+max+'" value="'+val[shape][id]+'">';
+      box.appendChild(d);
+      d.querySelector('input').addEventListener('input',e=>{val[shape][id]=+e.target.value;
+        if(shape==='trap'&&val.trap.c>val.trap.a){if(id==='a'){val.trap.c=val.trap.a;document.getElementById('s_c').value=val.trap.c;document.getElementById('o_c').textContent=ar(val.trap.c)+' وحدة'}else{val.trap.c=val.trap.a;e.target.value=val.trap.a}}
+        document.getElementById('o_'+id).textContent=ar(val[shape][id])+' وحدة';drawLab()})});
+  }
+  function drawLab(){
+    const v=val[shape],W=420,H=330,pad=40;let bw,bh,pts,ex='',tip='',fa='',fp='';
+    if(shape==='rect'){bw=v.l;bh=v.w}else if(shape==='square'){bw=bh=v.s}else if(shape==='tri'){bw=v.b;bh=v.h}else if(shape==='para'){bw=v.b+2;bh=v.h}else{bw=v.a;bh=v.h}
+    const u=Math.min((W-2*pad)/bw,(H-2*pad)/bh,44),x0=(W-bw*u)/2,y0=(H-bh*u)/2,yb=y0+bh*u;
+    const P=(x,y)=>(x0+x*u).toFixed(1)+','+(y0+y*u).toFixed(1);
+    let g='';for(let i=0;i<=bw;i++)g+='<line x1="'+(x0+i*u)+'" y1="'+y0+'" x2="'+(x0+i*u)+'" y2="'+yb+'" stroke="var(--line)" stroke-width="1.2"/>';
+    for(let j=0;j<=bh;j++)g+='<line x1="'+x0+'" y1="'+(y0+j*u)+'" x2="'+(x0+bw*u)+'" y2="'+(y0+j*u)+'" stroke="var(--line)" stroke-width="1.2"/>';
+    const L=(x,y,t,a)=>'<text class="lbl" x="'+x+'" y="'+y+'" text-anchor="'+(a||'middle')+'">'+t+'</text>';
+    const D=(x1,y1,x2,y2)=>'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="var(--ink)" stroke-width="2" stroke-dasharray="6 5"/>';
+    if(shape==='rect'||shape==='square'){const l=shape==='rect'?v.l:v.s,w=shape==='rect'?v.w:v.s;
+      pts=[P(0,0),P(l,0),P(l,w),P(0,w)];
+      for(let i=1;i<l;i++)g+='<line x1="'+(x0+i*u)+'" y1="'+y0+'" x2="'+(x0+i*u)+'" y2="'+yb+'" stroke="var(--area)" stroke-opacity=".5" stroke-width="1.4"/>';
+      for(let j=1;j<w;j++)g+='<line x1="'+x0+'" y1="'+(y0+j*u)+'" x2="'+(x0+l*u)+'" y2="'+(y0+j*u)+'" stroke="var(--area)" stroke-opacity=".5" stroke-width="1.4"/>';
+      ex=L(x0+l*u/2,yb+26,(shape==='rect'?'الطول ':'')+ar(l))+L(x0-10,y0+w*u/2+5,(shape==='rect'?'العرض ':'')+ar(w),'end');
+      if(shape==='rect'){fa='المساحة = الطول × العرض = '+ar(l)+' × '+ar(w)+' = <b>'+ar(l*w)+'</b> وحدة²';fp='المحيط = ٢ × ('+ar(l)+' + '+ar(w)+') = <b>'+ar(2*(l+w))+'</b> وحدة';tip='عدد المربعات داخل الشكل '+ar(l*w)+'، وهو ناتج ضرب الطول في العرض نفسه.'}
+      else{fa='المساحة = الضلع × الضلع = '+ar(l)+' × '+ar(l)+' = <b>'+ar(l*l)+'</b> وحدة²';fp='المحيط = ٤ × '+ar(l)+' = <b>'+ar(4*l)+'</b> وحدة';tip='المربع مستطيل أضلاعه الأربعة متساوية.'}
+    }else if(shape==='tri'){const ax=Math.round(v.b*0.35*2)/2;pts=[P(0,v.h),P(v.b,v.h),P(ax,0)];
+      ex='<rect x="'+x0+'" y="'+y0+'" width="'+(v.b*u)+'" height="'+(v.h*u)+'" fill="none" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="7 5"/>'+D(x0+ax*u,y0,x0+ax*u,yb)+L(x0+v.b*u/2,yb+26,'القاعدة '+ar(v.b))+L(x0+ax*u+8,y0+v.h*u/2,'الارتفاع '+ar(v.h),'start');
+      fa='المساحة = ½ × '+ar(v.b)+' × '+ar(v.h)+' = <b>'+fmt(v.b*v.h/2)+'</b> وحدة²';tip='المثلث نصف المستطيل المتقطّع تماماً، لذلك نضرب في ½.'}
+    else if(shape==='para'){pts=[P(0,v.h),P(v.b,v.h),P(v.b+2,0),P(2,0)];
+      ex=D(x0+2*u,y0,x0+2*u,yb)+L(x0+v.b*u/2,yb+26,'القاعدة '+ar(v.b))+L(x0+2*u+8,y0+v.h*u/2,'الارتفاع '+ar(v.h),'start');
+      fa='المساحة = القاعدة × الارتفاع = '+ar(v.b)+' × '+ar(v.h)+' = <b>'+ar(v.b*v.h)+'</b> وحدة²';tip='قُصّي المثلث من طرف وانقليه للطرف الآخر فيصبح مستطيلاً. نستخدم الارتفاع لا الضلع المائل.'}
+    else{const off=(v.a-v.c)/2;pts=[P(0,v.h),P(v.a,v.h),P(off+v.c,0),P(off,0)];
+      ex=D(x0+off*u,y0,x0+off*u,yb)+L(x0+v.a*u/2,yb+26,'الكبرى '+ar(v.a))+L(x0+(off+v.c/2)*u,y0-12,'الصغرى '+ar(v.c))+L(x0+off*u-8,y0+v.h*u/2,'الارتفاع '+ar(v.h),'end');
+      fa='المساحة = ½ × ('+ar(v.a)+' + '+ar(v.c)+') × '+ar(v.h)+' = <b>'+fmt((v.a+v.c)*v.h/2)+'</b> وحدة²';tip='نأخذ متوسط القاعدتين ونضربه في الارتفاع.'}
+    document.getElementById('labSvg').innerHTML=g+'<polygon points="'+pts.join(' ')+'" fill="var(--area-soft)" stroke="var(--peri)" stroke-width="4" stroke-linejoin="round"/>'+ex;
+    document.getElementById('labFormula').innerHTML='<div class="fa">'+fa+'</div>'+(fp?'<div class="fp">'+fp+'</div>':'');
+    document.getElementById('labTip').textContent=tip;
+  }
+  buildSliders();drawLab();
+
+  /* ===== الاختبار ===== */
+  const figL='<svg viewBox="0 0 260 170"><path d="M30 20H150V80H230V140H30Z" fill="var(--area-soft)" stroke="var(--peri)" stroke-width="3" stroke-linejoin="round"/><text class="lbl" x="130" y="162" text-anchor="middle">١٠ سم</text><text class="lbl" x="22" y="85" text-anchor="end">٦ سم</text><text class="lbl" x="90" y="14" text-anchor="middle">٦ سم</text><text class="lbl" x="158" y="54" text-anchor="start">٣ سم</text><text class="lbl" x="190" y="74" text-anchor="middle">٤ سم</text><text class="lbl" x="238" y="115" text-anchor="start">٣ سم</text></svg>';
+  const figPara='<svg viewBox="0 0 260 150"><polygon points="30,120 190,120 240,40 80,40" fill="var(--area-soft)" stroke="var(--peri)" stroke-width="3" stroke-linejoin="round"/><line x1="80" y1="40" x2="80" y2="120" stroke="var(--ink)" stroke-width="1.6" stroke-dasharray="5 4"/><text class="lbl" x="110" y="142" text-anchor="middle">٩ سم</text><text class="lbl" x="86" y="86" text-anchor="start">٤ سم</text><text class="lbl" x="222" y="90" text-anchor="start">٥ سم</text></svg>';
+  const figTri='<svg viewBox="0 0 260 150"><polygon points="30,120 230,120 100,30" fill="var(--area-soft)" stroke="var(--peri)" stroke-width="3" stroke-linejoin="round"/><line x1="100" y1="30" x2="100" y2="120" stroke="var(--ink)" stroke-width="1.6" stroke-dasharray="5 4"/><text class="lbl" x="130" y="142" text-anchor="middle">١٠ سم</text><text class="lbl" x="106" y="82" text-anchor="start">٦ سم</text></svg>';
+  const Q=[
+    {s:'مساحة المستطيل',q:'مستطيل طوله ٨ سم وعرضه ٥ سم. ما مساحته؟',o:['١٣ سم²','٢٦ سم²','٤٠ سم²','٤٥ سم²'],a:2,w:'المساحة = ٨ × ٥ = ٤٠ سم². الخيار ٢٦ هو المحيط.'},
+    {s:'محيط المربع',q:'مربع محيطه ٣٦ سم. ما طول ضلعه؟',o:['٦ سم','٩ سم','١٢ سم','١٨ سم'],a:1,w:'الضلع = المحيط ÷ ٤ = ٣٦ ÷ ٤ = ٩ سم.'},
+    {s:'مسألة حياتية',q:'حديقة مستطيلة طولها ١٢ م وعرضها ٧ م. ما طول السياج اللازم حولها؟',o:['١٩ م','٣٨ م','٨٤ م','١٦٨ م'],a:1,w:'السياج يحيط بالحديقة، فنحسب المحيط: ٢ × (١٢ + ٧) = ٣٨ م.'},
+    {s:'مساحة المثلث',q:'ما مساحة المثلث المرسوم؟',f:figTri,o:['١٦ سم²','٣٠ سم²','٣٦ سم²','٦٠ سم²'],a:1,w:'½ × ١٠ × ٦ = ٣٠ سم². الخيار ٦٠ نسي الضرب في ½.'},
+    {s:'شكل مركّب',q:'ما مساحة الشكل المركّب المرسوم؟',f:figL,o:['٣٢ سم²','٣٦ سم²','٤٨ سم²','٦٠ سم²'],a:2,w:'المستطيل الكامل ١٠ × ٦ = ٦٠، ناقص الجزء المقطوع ٤ × ٣ = ١٢، فالمساحة ٤٨ سم². (٣٢ هو المحيط.)'},
+    {s:'تفكير',q:'أيّ المستطيلات مساحته ٢٤ سم² ومحيطه ٢٠ سم؟',o:['١ × ٢٤','٢ × ١٢','٣ × ٨','٤ × ٦'],a:3,w:'كلها مساحتها ٢٤، لكن ٢ × (٤ + ٦) = ٢٠. أما ٣ × ٨ فمحيطه ٢٢.'},
+    {s:'متوازي الأضلاع',q:'ما مساحة متوازي الأضلاع المرسوم؟',f:figPara,o:['١٨ سم²','٢٨ سم²','٣٦ سم²','٤٥ سم²'],a:2,w:'القاعدة × الارتفاع = ٩ × ٤ = ٣٦ سم². الخيار ٤٥ استخدم الضلع المائل.'},
+    {s:'شبه المنحرف',q:'شبه منحرف قاعدتاه ٦ سم و١٠ سم وارتفاعه ٤ سم. ما مساحته؟',o:['٢٠ سم²','٣٢ سم²','٤٠ سم²','٦٤ سم²'],a:1,w:'½ × (٦ + ١٠) × ٤ = ٣٢ سم².'},
+    {s:'تفكير',q:'إذا ضاعفنا طول ضلع مربع، فإن مساحته:',o:['تتضاعف مرتين','تصبح ٣ أمثالها','تصبح ٤ أمثالها','تصبح ٨ أمثالها'],a:2,w:'ضلع ٣ مساحته ٩، وضلع ٦ مساحته ٣٦ = ٤ × ٩. أما المحيط فيتضاعف مرتين فقط.'},
+    {s:'متعددة الخطوات',q:'غرفة أبعادها ٤ م × ٣ م تُبلَّط ببلاط مربع ضلعه ٥٠ سم. كم بلاطة نحتاج؟',o:['١٢','١٤','٢٤','٤٨'],a:3,w:'٥٠ سم = ½ م، فالطول يتسع لـ ٨ بلاطات والعرض لـ ٦، والعدد = ٨ × ٦ = ٤٨ بلاطة.'}
+  ];
+  const LET=['أ','ب','ج','د'];let qi=0;const res=new Array(Q.length).fill(null);const box=document.getElementById('quizBox');
+  const dots=()=>'<div class="qdots">'+Q.map((_,i)=>'<i class="'+(res[i]===true?'ok':res[i]===false?'bad':i===qi?'now':'')+'"></i>').join('')+'</div>';
+  function showQ(){const q=Q[qi];
+    box.innerHTML='<div class="qtop"><span>السؤال '+ar(qi+1)+' من '+ar(Q.length)+'</span>'+dots()+'<span>الصحيحة: '+ar(res.filter(x=>x===true).length)+'</span></div>'+
+      '<div class="qbody"><div><span class="qskill">'+q.s+'</span><p class="qtext">'+q.q+'</p>'+(q.f?'<div class="qfig">'+q.f+'</div>':'')+'</div>'+
+      '<div><div class="opts">'+q.o.map((o,i)=>'<button type="button" class="opt" data-i="'+i+'"><span class="L">'+LET[i]+'</span><span>'+o+'</span></button>').join('')+'</div>'+
+      '<div class="why" id="why" style="margin-top:14px"></div><div class="qnext" id="qnext"></div></div></div>';
+    box.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>answer(+b.dataset.i)));
+  }
+  function answer(i){const q=Q[qi],ok=i===q.a;res[qi]=ok;
+    box.querySelectorAll('.opt').forEach((b,j)=>{b.disabled=true;if(j===q.a)b.classList.add('right');else if(j===i)b.classList.add('wrong')});
+    const w=document.getElementById('why');w.className='why show';
+    w.innerHTML='<strong style="color:var('+(ok?'--ok':'--bad')+')">'+(ok?'إجابة صحيحة.':'الإجابة الصحيحة ('+LET[q.a]+').')+'</strong>'+q.w;
+    box.querySelector('.qdots').outerHTML=dots();
+    const last=qi===Q.length-1,n=document.getElementById('qnext');
+    n.innerHTML='<button type="button" class="btn">'+(last?'عرض النتيجة':'السؤال التالي')+'</button>';
+    n.querySelector('button').addEventListener('click',()=>{if(last)showResult();else{qi++;showQ()}});
+  }
+  function showResult(){const sc=res.filter(x=>x===true).length;
+    const msg=sc>=9?'ممتاز! أتقنتنّ مهارات المحيط والمساحة.':sc>=7?'جيد جداً، لنراجع الأسئلة التي أخطأنا فيها.':sc>=5?'بداية جيدة، لنعد إلى مختبر القوانين.':'لنرجع إلى ورشة البناء ونحاول مجدداً.';
+    box.innerHTML='<div class="result"><span class="ic">'+I.star+'</span><div><div class="big num">'+ar(sc)+' / '+ar(Q.length)+'</div><p>'+msg+'</p><div style="margin-top:22px"><button type="button" class="btn" id="retry">إعادة الاختبار</button></div></div></div>';
+    document.getElementById('retry').addEventListener('click',()=>{qi=0;res.fill(null);showQ()});
+  }
+  showQ();
+})();
+</script>
+</body>
+</html>
